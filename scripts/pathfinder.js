@@ -1,9 +1,10 @@
-// This class finds the optimal path for mobs to take to get from one location to a goal tile
-// Pathfinding will not consider teleports when determining route.
-// Mobs will need to detect when they path over a teleporter and then request a new path.
 import { TILE_TYPES } from "./tile.js";
 import Queue from "./queue.js";
 import Coords from "./coords.js";
+
+// This class finds the optimal path for mobs to take to get from one location to a goal tile
+// Pathfinding will not consider teleports when determining route.
+// Mobs will need to detect when they path over a teleporter and then request a new path.
 
 class Pathfinder {
   constructor(grid, origin, goalType, cpNum = 0) {
@@ -25,6 +26,8 @@ class Pathfinder {
   }
 
   // Finds the shortest path from origin to goal tile via breadth first search
+  // Returns a stack representattion (array) of the path from origin to goal
+  // If no path is found, returns null
   findPath() {
     let origin = this.origin;
     let goal = this.goalCoords;
@@ -42,7 +45,9 @@ class Pathfinder {
         break;
       }
 
+      // Iterate through all pathable neighbor tiles
       this.getPathableNeighbors(current).forEach(next => {
+        // If tile has not yet been visited, enqueue it and record its path history
         if (!pathHist[next.toArray()]) {
           queue.enqueue(next);
           pathHist[next.toArray()] = current;
@@ -50,10 +55,12 @@ class Pathfinder {
       });
     }
 
+    // Extract an array representation of the path to the goal from pathHist
     return this.generatePath(pathHist);
   }
 
-  // Return an array of Coords representing the path from origin to goal from pathHist
+  // Returns an array of Coords representing the path from origin to goal from pathHist
+  // If no path is found, returns null
   generatePath(pathHist) {
     // No path found
     if (!pathHist["goal"]) {
