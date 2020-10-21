@@ -14,12 +14,13 @@ class Coords {
   }
 
   // Return an array of coordinates immediately adjacent to this one
+  // This controls direction preference for pathfinder as well
   getAdjacent() {
     return [
-      new Coords([this.x - 1, this.y]),
-      new Coords([this.x, this.y - 1]),
-      new Coords([this.x + 1, this.y]),
-      new Coords([this.x, this.y + 1])
+      new Coords([this.x + 1, this.y]), // RIGHT >
+      new Coords([this.x - 1, this.y]),  // LEFT >
+      new Coords([this.x, this.y - 1]), // UP >
+      new Coords([this.x, this.y + 1]), // DOWN >
     ];
   }
 }
