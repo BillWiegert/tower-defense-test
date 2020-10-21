@@ -50,7 +50,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
   tiles[0][6].changeType(TILE_TYPES.TP_IN);
   tiles[0][8].changeType(TILE_TYPES.TP_OUT);
 
-  tiles[19][4].addRock();
   tiles[8][6].addWall();
   tiles[1][9].addTower();
 
@@ -78,6 +77,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
   tiles[15][9].addRock();
   tiles[17][5].addRock();
   tiles[16][4].addRock();
+  tiles[15][5].addRock();
+  tiles[14][6].addRock();
+  tiles[14][7].addRock();
 
   console.log(`[0,8] pathable?: ${tiles[0][8].isPathable()}`);
 
@@ -99,27 +101,36 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   updateCanvasSize();
 
+  if(testPath) {
+    let testMob = new createjs.Shape();
+    let testOrigin = testPath.pop();
 
-  let testMob = new createjs.Shape();
-  let testOrigin = testPath.pop();
+    testMob.x = (testOrigin.x * tileSize);
+    testMob.y = (testOrigin.y * tileSize);
 
-  // Draw testMob at testOrigin in the center of the tile with a radius 1/3 of tileSize
-  testMob.graphics.beginFill("Crimson").drawCircle((testOrigin.x * tileSize) + tileSize/2, (testOrigin.y * tileSize) + tileSize/2, tileSize/3);
+    window.testMob = testMob;
+    window.stage = STAGE;
+    window.tileSize = tileSize;
 
-  // Tween the testMob along the path found by pathfinder
-  let tween = createjs.Tween.get(testMob, {loop: -1});
+    // Draw testMob at testOrigin in the center of the tile with a radius 1/3 of tileSize
+    testMob.graphics.beginFill("Crimson").drawCircle(tileSize/2, tileSize/2, tileSize/3);
+
+    // Tween the testMob along the path found by pathfinder
+    let tween = createjs.Tween.get(testMob, {loop: -1});
     while(testPath.length > 0) {
       let nextTile = testPath.pop();
 
       // Scale coordinates by tileSize and convert to an offset
-      let nextX = nextTile.x * tileSize - (testOrigin.x * tileSize);
-      let nextY = nextTile.y * tileSize - (testOrigin.y * tileSize);
+      let nextX = nextTile.x * tileSize;
+      let nextY = nextTile.y * tileSize;
 
-      tween.to({x: nextX, y: nextY}, 500);
+      tween.to({x: nextX, y: nextY}, 400);
     }
 
-  STAGE.addChild(testMob);
-	createjs.Ticker.addEventListener("tick", STAGE);
+    STAGE.addChild(testMob);
+    createjs.Ticker.addEventListener("tick", STAGE);
+  }
+
 
 
   // Updates the size of the canvas any time the window is resized
