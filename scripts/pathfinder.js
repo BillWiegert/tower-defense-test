@@ -1,6 +1,6 @@
 import { TILE_TYPES } from "./tile.js";
 import Queue from "./queue.js";
-import Coords from "./coords.js";
+import Coord from "./coord.js";
 
 // This class finds the optimal path for mobs to take to get from one location to a goal tile
 // Pathfinding will not consider teleports when determining route.
@@ -10,15 +10,15 @@ class Pathfinder {
   constructor(grid, origin, goalType, cpNum = 0) {
     this.grid = grid; // 2D array of tiles
     this.origin = origin;
-    this.findGoalCoords(goalType, cpNum);
+    this.findGoalCoord(goalType, cpNum);
   }
 
   // Finds and saves the coordinates to pathfind to
-  findGoalCoords(goal, cpNum) {
+  findGoalCoord(goal, cpNum) {
     this.grid.forEach((row, x) => {
       row.forEach((tile, y) => {
         if (tile.type == goal && (cpNum === 0 || tile.cpNum == cpNum)) {
-          this.goalCoords = new Coords(x, y);
+          this.goalCoord = new Coord(x, y);
           return;
         }
       });
@@ -30,7 +30,7 @@ class Pathfinder {
   // If no path is found, returns null
   findPath() {
     let origin = this.origin;
-    let goal = this.goalCoords;
+    let goal = this.goalCoord;
     const queue = new Queue(); // Tiles to visit
     const pathHist = {}; // Holds a reference to the tile preceeding any given tile in the path
 

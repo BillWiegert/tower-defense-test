@@ -1,4 +1,4 @@
-class Coords {
+class Coord {
   constructor(x, y) {
     this.x = typeof x == "number" ? x : x[0];
     this.y = y ? y : x[1];
@@ -17,12 +17,12 @@ class Coords {
   // This controls direction preference for pathfinder as well
   getAdjacent() {
     return [
-      new Coords([this.x + 1, this.y]), // RIGHT >
-      new Coords([this.x - 1, this.y]),  // LEFT >
-      new Coords([this.x, this.y - 1]), // UP >
-      new Coords([this.x, this.y + 1]), // DOWN >
+      new Coord([this.x + 1, this.y]), // RIGHT >
+      new Coord([this.x - 1, this.y]),  // LEFT >
+      new Coord([this.x, this.y - 1]), // UP >
+      new Coord([this.x, this.y + 1]), // DOWN >
     ];
   }
 }
 
-export default Coords;
+export default Coord;

@@ -1,6 +1,6 @@
 import { Tile, TILE_TYPES } from "./tile.js";
 import Pathfinder from "./pathfinder.js";
-import Coords from "./coords.js";
+import Coord from "./coord.js";
 import Mob from "./mob.js";
 
 const GRID_WIDTH = 20;
@@ -42,7 +42,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   // ========= TEST CODE =========
   let mob = new Mob();
-  mob.speak();
   tiles[0][1].changeType(TILE_TYPES.START);
   tiles[17][6].changeType(TILE_TYPES.FINISH);
   tiles[8][11].changeType(TILE_TYPES.CHECKPOINT, 1);
@@ -83,9 +82,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   console.log(`[0,8] pathable?: ${tiles[0][8].isPathable()}`);
 
-  let start = new Coords(0,1);
+  let start = new Coord(0,1);
   let pf = new Pathfinder(tiles, start, TILE_TYPES.FINISH);
-  console.log("Goal Coords:", pf.goalCoords);
+  console.log("Goal Coord:", pf.goalCoord);
   let testPath = pf.findPath();
   console.log("Path:", testPath);
 
