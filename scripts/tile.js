@@ -7,6 +7,7 @@ const TILE_TYPES = {
   TP_IN: "tpIn",
   TP_OUT: "tpOut",
   BLANK: "blank",
+  VOID: "void",
 };
 
 // Eventually replace these with image files or possibly more complex vector graphics
@@ -17,6 +18,7 @@ const TILE_COLORS = {
   [TILE_TYPES.TP_IN]: "cyan",
   [TILE_TYPES.TP_OUT]: "blue",
   [TILE_TYPES.BLANK]: "gray",
+  [TILE_TYPES.VOID]: "black",
 };
 
 // Represents a single Tile on the board
@@ -46,10 +48,10 @@ class Tile {
 
   // Returns true if the tile can be pathed over, false otherwise
   isPathable() {
-    return this.contents == null; // Assuming any type of content makes tile unpathable
+    return this.type !== TILE_TYPES.VOID && this.contents == null; // Assuming any type of content makes tile unpathable
   }
 
-  // Change the tile type of this tile
+  // Change the tile type of this tile. Also clears any contents
   changeType(newType, cpNum = 0) {
     if (!Object.values(TILE_TYPES).includes(newType)) throw `Invalid tile type: ${newType}`;
     this.clearContents();
