@@ -42,48 +42,29 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   // ========= TEST CODE =========
   let mob = new Mob();
-  tiles[0][1].changeType(TILE_TYPES.START);
-  tiles[17][6].changeType(TILE_TYPES.FINISH);
-  tiles[8][11].changeType(TILE_TYPES.CHECKPOINT, 1);
 
-  tiles[0][6].changeType(TILE_TYPES.TP_IN);
-  tiles[0][8].changeType(TILE_TYPES.TP_OUT);
+  for (let i = 0; i < GRID_WIDTH * 2; i++) {
+    let x = Math.floor(Math.random() * GRID_WIDTH);
+    let y = Math.floor(Math.random() * GRID_HEIGHT);
 
-  tiles[8][6].addWall();
-  tiles[1][9].addTower();
+    tiles[x][y].changeType(TILE_TYPES.VOID);
+  }
 
-  tiles[3][0].addRock();
-  tiles[1][1].addRock();
-  tiles[0][2].addRock();
+  let startX = Math.floor(Math.random() * (GRID_WIDTH/2));
+  let startY = Math.floor(Math.random() * (GRID_HEIGHT/2));
+  let finishX = Math.floor(Math.random() * (GRID_WIDTH/2) + GRID_WIDTH/2);
+  let finishY = Math.floor(Math.random() * (GRID_HEIGHT/2) + GRID_HEIGHT/2);
 
-  tiles[3][1].addRock();
-  tiles[3][2].addRock();
-  tiles[2][3].addRock();
-  tiles[1][4].addRock();
-  tiles[4][3].addRock();
-  tiles[5][4].addRock();
-  tiles[6][5].addRock();
-  tiles[7][6].addRock();
-  tiles[9][7].addRock();
-  tiles[10][8].addRock();
-  tiles[11][9].addRock();
-  tiles[12][9].addRock();
-  tiles[13][9].addRock();
-  tiles[14][9].addRock();
-  tiles[18][6].addRock();
-  tiles[17][7].addRock();
-  tiles[16][8].addRock();
-  tiles[15][9].addRock();
-  tiles[17][5].addRock();
-  tiles[16][4].addRock();
-  tiles[15][5].addRock();
-  tiles[14][6].addRock();
-  tiles[14][7].addRock();
+  tiles[startX][startY].changeType(TILE_TYPES.START);
+  tiles[finishX][finishY].changeType(TILE_TYPES.FINISH);
 
   console.log(`[0,8] pathable?: ${tiles[0][8].isPathable()}`);
 
-  let start = new Coord(0,1);
+  let start = new Coord(startX, startY);
   let pf = new Pathfinder(tiles, start, TILE_TYPES.FINISH);
+  window.pf = pf;
+  window.Coord = Coord;
+
   console.log("Goal Coord:", pf.goalCoord);
   let testPath = pf.findPath();
   console.log("Path:", testPath);
@@ -100,7 +81,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   updateCanvasSize();
 
-  if(testPath) {
+  if (testPath) {
     let testMob = new createjs.Shape();
     let testOrigin = testPath.pop();
 
@@ -112,12 +93,18 @@ document.addEventListener("DOMContentLoaded", (event) => {
     window.tileSize = tileSize;
 
     // Draw testMob at testOrigin in the center of the tile with a radius 1/3 of tileSize
-    testMob.graphics.beginFill("Crimson").drawCircle(tileSize/2, tileSize/2, tileSize/3);
+    testMob.graphics.beginFill("Crimson").beginStroke("Black").drawCircle(tileSize/2, tileSize/2, tileSize/3);
 
+    animateMob(testMob, testPath);
+    STAGE.addChild(testMob);
+    createjs.Ticker.addEventListener("tick", STAGE);
+  }
+
+  function animateMob(mob, path) {
     // Tween the testMob along the path found by pathfinder
-    let tween = createjs.Tween.get(testMob, {loop: -1});
-    while(testPath.length > 0) {
-      let nextTile = testPath.pop();
+    let tween = createjs.Tween.get(mob, {loop: -1});
+    while(path.length > 0) {
+      let nextTile = path.pop();
 
       // Scale coordinates by tileSize and convert to an offset
       let nextX = nextTile.x * tileSize;
@@ -126,11 +113,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
       tween.to({x: nextX, y: nextY}, 400);
     }
 
-    STAGE.addChild(testMob);
-    createjs.Ticker.addEventListener("tick", STAGE);
+    tween.call(() => console.log("We pathed!"));
   }
-
-
 
   // Updates the size of the canvas any time the window is resized
   window.addEventListener('resize', updateCanvasSize);
