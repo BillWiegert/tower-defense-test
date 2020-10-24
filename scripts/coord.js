@@ -1,7 +1,14 @@
 class Coord {
   constructor(x, y) {
-    this.x = typeof x == "number" ? x : x[0];
-    this.y = y ? y : x[1];
+    if (typeof x == "number" && typeof y == "number") {
+      this.x = x;
+      this.y = y;
+    } else if (typeof x == "object") {
+      this.x = x[0];
+      this.y = x[1];
+    } else {
+      throw `invalid parameters ${x} and ${y}`
+    }
   }
 
   toArray() {
