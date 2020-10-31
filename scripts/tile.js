@@ -60,7 +60,6 @@ class Tile {
   }
 
   addItem(item) {
-    console.log(this.x, this.y);
     item == "wall" ? this.addWall() : item == "tower" ? this.addTower() : item == "rock" ? this.addRock() : this.clearContents();
   }
 
