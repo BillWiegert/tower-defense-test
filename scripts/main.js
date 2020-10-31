@@ -3,8 +3,8 @@ import Pathfinder from "./pathfinder.js";
 import Coord from "./coord.js";
 import Mob from "./mob.js";
 
-const GRID_WIDTH = 20;
-const GRID_HEIGHT = 12;
+const GRID_WIDTH = 36;
+const GRID_HEIGHT = 20;
 var tileSize;
 var tiles = new Array(GRID_WIDTH);
 
@@ -12,6 +12,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const CANVAS = document.querySelector("#game-space");
   const STAGE = new createjs.Stage("game-space");
   const TOOLBAR_BUTTONS = document.querySelectorAll("#toolbar > button");
+  const RANDOMIZE_BUTTON = document.querySelector("#randomize");
+  const PATH_LENGTH = document.querySelector("#path-length");
 
   // User changable options to change what actions are performed on click
   let selectedOptions = {
@@ -19,9 +21,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
     // anything else needed?
   };
 
+  CANVAS.addEventListener("click", () => {
+    findPath();
+  });
+
   TOOLBAR_BUTTONS.forEach(button => button.addEventListener("click", () => {
     handleToolbarButtonClick(button);
   }));
+
+  RANDOMIZE_BUTTON.addEventListener("click", generateRandomGrid);
 
   // Change selectedTool on click and update active button
   function handleToolbarButtonClick(button) {
@@ -42,67 +50,83 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   // ========= TEST CODE =========
   let mob = new Mob();
+  let start;
+  let testMob = new createjs.Shape();
+  testMob.graphics.clear().beginFill("Crimson").beginStroke("Black").drawCircle(tileSize/2, tileSize/2, tileSize/3);
+  STAGE.addChild(testMob);
+  createjs.Ticker.addEventListener("tick", STAGE);
 
-  for (let i = 0; i < GRID_WIDTH * 2; i++) {
-    let x = Math.floor(Math.random() * GRID_WIDTH);
-    let y = Math.floor(Math.random() * GRID_HEIGHT);
-
-    tiles[x][y].changeType(TILE_TYPES.VOID);
-  }
-
-  let startX = Math.floor(Math.random() * (GRID_WIDTH/2));
-  let startY = Math.floor(Math.random() * (GRID_HEIGHT/2));
-  let finishX = Math.floor(Math.random() * (GRID_WIDTH/2) + GRID_WIDTH/2);
-  let finishY = Math.floor(Math.random() * (GRID_HEIGHT/2) + GRID_HEIGHT/2);
-
-  tiles[startX][startY].changeType(TILE_TYPES.START);
-  tiles[finishX][finishY].changeType(TILE_TYPES.FINISH);
-
-  console.log(`[0,8] pathable?: ${tiles[0][8].isPathable()}`);
-
-  let start = new Coord(startX, startY);
-  let pf = new Pathfinder(tiles, start, TILE_TYPES.FINISH);
-  window.pf = pf;
-  window.Coord = Coord;
-
-  console.log("Goal Coord:", pf.goalCoord);
-  let testPath = pf.findPath();
-  console.log("Path:", testPath);
-
-
-  // Ensure error is thrown
-  try {
-    tiles[0][0].changeType("invisible tile");
-  } catch (e) {
-    console.log(e)
-  }
-
-  // =============================
-
+  // Initialization
   updateCanvasSize();
+  generateRandomGrid();
 
-  if (testPath) {
-    let testMob = new createjs.Shape();
-    let testOrigin = testPath.pop();
+  function findPath() {
+    let pf1 = new Pathfinder(tiles, start, TILE_TYPES.CHECKPOINT, 1);
+    let testPath1 = pf1.findPath();
+    let pf2 = new Pathfinder(tiles, pf1.goalCoord, TILE_TYPES.FINISH);
+    let testPath2 = pf2.findPath();
 
-    testMob.x = (testOrigin.x * tileSize);
-    testMob.y = (testOrigin.y * tileSize);
+    // Ensure both paths are valid
+    if (testPath1 && testPath2) {
+      testPath2.pop(); // Toss this duplicate point
+      let path = testPath2.concat(testPath1);
+      PATH_LENGTH.innerHTML = path.length;
+      let testOrigin = path.pop();
 
-    window.testMob = testMob;
-    window.stage = STAGE;
-    window.tileSize = tileSize;
+      testMob.x = (testOrigin.x * tileSize);
+      testMob.y = (testOrigin.y * tileSize);
 
-    // Draw testMob at testOrigin in the center of the tile with a radius 1/3 of tileSize
-    testMob.graphics.beginFill("Crimson").beginStroke("Black").drawCircle(tileSize/2, tileSize/2, tileSize/3);
+      testMob.graphics.clear().beginFill("Crimson").beginStroke("Black").drawCircle(tileSize/2, tileSize/2, tileSize/3);
 
-    animateMob(testMob, testPath);
-    STAGE.addChild(testMob);
-    createjs.Ticker.addEventListener("tick", STAGE);
+      animateMob(testMob, path);
+
+    } else {
+      // Reset testMob to start tile
+      createjs.Tween.removeTweens(testMob);
+      // testMob.x = start.x;
+      // testMob.y = start.y;
+
+      PATH_LENGTH.innerHTML = 0;
+    }
+  }
+
+  function generateRandomGrid() {
+    console.time("generateRandomGrid");
+    for (let i = 0; i < GRID_WIDTH; i++) {
+      for (let j = 0; j < GRID_HEIGHT; j++) {
+        tiles[i][j].changeType(TILE_TYPES.BLANK);
+      }
+    }
+
+    for (let i = 0; i < GRID_WIDTH * 2; i++) {
+      let x = Math.floor(Math.random() * GRID_WIDTH);
+      let y = Math.floor(Math.random() * GRID_HEIGHT);
+
+      tiles[x][y].changeType(TILE_TYPES.VOID);
+    }
+
+    let startX = Math.floor(Math.random() * (GRID_WIDTH/2));
+    let startY = Math.floor(Math.random() * (GRID_HEIGHT/2));
+    let finishX = Math.floor(Math.random() * (GRID_WIDTH/2) + GRID_WIDTH/2);
+    let finishY = Math.floor(Math.random() * (GRID_HEIGHT/2) + GRID_HEIGHT/2);
+    let cp1X = Math.floor(Math.random() * (GRID_WIDTH));
+    let cp1Y = Math.floor(Math.random() * (GRID_HEIGHT));
+
+    tiles[startX][startY].changeType(TILE_TYPES.START);
+    tiles[finishX][finishY].changeType(TILE_TYPES.FINISH);
+    tiles[cp1X][cp1Y].changeType(TILE_TYPES.CHECKPOINT, 1);
+
+    start = new Coord(startX, startY);
+
+    console.timeEnd("generateRandomGrid");
+    draw();
   }
 
   function animateMob(mob, path) {
+    console.time("animateMob");
+
     // Tween the testMob along the path found by pathfinder
-    let tween = createjs.Tween.get(mob, {loop: -1});
+    let tween = createjs.Tween.get(mob, {loop: -1, override: true});
     while(path.length > 0) {
       let nextTile = path.pop();
 
@@ -110,14 +134,16 @@ document.addEventListener("DOMContentLoaded", (event) => {
       let nextX = nextTile.x * tileSize;
       let nextY = nextTile.y * tileSize;
 
-      tween.to({x: nextX, y: nextY}, 400);
+      tween.to({x: nextX, y: nextY}, 200);
     }
-
-    tween.call(() => console.log("We pathed!"));
+    console.timeEnd("animateMob");
   }
 
   // Updates the size of the canvas any time the window is resized
-  window.addEventListener('resize', updateCanvasSize);
+  window.addEventListener('resize', () => {
+    updateCanvasSize();
+    draw();
+  });
 
   // Draw a square on the stage
   function drawTestSquare(x, y, shape) {
@@ -128,16 +154,18 @@ document.addEventListener("DOMContentLoaded", (event) => {
   // Update the size of the canvas depending on the window width
   // Also updates tileSize
   function updateCanvasSize() {
+    console.time("updateCanvasSize");
     var canvasWidth = window.innerWidth * 0.75;
-    var canvasHeight = canvasWidth * 0.6; // 20 x 12
-    tileSize = canvasWidth / 20.0;
+    var canvasHeight = canvasWidth * GRID_HEIGHT / GRID_WIDTH; // 20 x 12
+    tileSize = canvasWidth / GRID_WIDTH;
     CANVAS.setAttribute("width", canvasWidth);
     CANVAS.setAttribute("height", canvasHeight);
-    draw();
+    // draw();
   }
 
   // Render all tiles
   function draw() {
+    console.time("draw");
     for (let i = 0; i < GRID_WIDTH; i++) {
       for (let j = 0; j < GRID_HEIGHT; j++) {
         tiles[i][j].render(tileSize);
@@ -145,6 +173,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }
 
     STAGE.update();
+    console.timeEnd("draw");
+    findPath();
   }
 });
 
