@@ -8,6 +8,23 @@ const GRID_HEIGHT = 20;
 var tileSize;
 var tiles = new Array(GRID_WIDTH);
 
+// Used as an intermediate handler.
+// Invokes the actual handler (fn) only after a specified delay in triggering events occurs.
+function debounce(delay, fn) {
+  let timerId;
+
+  return function (...args) {
+    // Clear delay timer if it exists
+    timerId && clearTimeout(timerId);
+
+    // Invoke fn after specified delay
+    timerId = setTimeout(() => {
+      fn(...args);
+      timerId = null;
+    }, delay);
+  }
+}
+
 document.addEventListener("DOMContentLoaded", (event) => {
   const CANVAS = document.querySelector("#game-space");
   const STAGE = new createjs.Stage("game-space");
@@ -52,7 +69,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
   let mob = new Mob();
   let start;
   let testMob = new createjs.Shape();
-  testMob.graphics.clear().beginFill("Crimson").beginStroke("Black").drawCircle(tileSize/2, tileSize/2, tileSize/3);
   STAGE.addChild(testMob);
   createjs.Ticker.addEventListener("tick", STAGE);
 
@@ -112,6 +128,8 @@ document.addEventListener("DOMContentLoaded", (event) => {
     let cp1X = Math.floor(Math.random() * (GRID_WIDTH));
     let cp1Y = Math.floor(Math.random() * (GRID_HEIGHT));
 
+
+    // TODO: Prevent CPs from spawning on top of or next to start/finish
     tiles[startX][startY].changeType(TILE_TYPES.START);
     tiles[finishX][finishY].changeType(TILE_TYPES.FINISH);
     tiles[cp1X][cp1Y].changeType(TILE_TYPES.CHECKPOINT, 1);
@@ -139,11 +157,13 @@ document.addEventListener("DOMContentLoaded", (event) => {
     console.timeEnd("animateMob");
   }
 
-  // Updates the size of the canvas any time the window is resized
-  window.addEventListener('resize', () => {
+  // Updates the size of the canvas after the window is resized
+  window.addEventListener('resize', debounce(500, handleResize));
+
+  function handleResize() {
     updateCanvasSize();
     draw();
-  });
+  }
 
   // Draw a square on the stage
   function drawTestSquare(x, y, shape) {
