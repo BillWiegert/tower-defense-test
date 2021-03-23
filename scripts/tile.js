@@ -24,7 +24,7 @@ const TILE_COLORS = {
 // Represents a single Tile on the board
 // Types: Start, Finish, Checkpoint, Teleport In/Out, Blank.
 class Tile {
-  constructor(x, y, stage, options, type = TILE_TYPES.BLANK, cpNum = 0, contents = null) {
+  constructor(x, y, stage, options, type = TILE_TYPES.BLANK, cpNum = null, contents = null) {
     this.x = x;
     this.y = y;
     this.stage = stage;
@@ -33,7 +33,17 @@ class Tile {
     this.contents = contents;
     this.shape = new createjs.Shape();
     this.shape.addEventListener("click", () => this.handleClick(options.selectedTool));
+    this.text = new createjs.Text();
+    this.text.textAlign = "center";
+    this.text.textBaseline = "middle";
+    this.updateText();
     stage.addChild(this.shape);
+    stage.addChild(this.text);
+  }
+
+  // Update label text for checkpoints
+  updateText() {
+    this.cpNum ? this.text.text = this.cpNum : this.text.text = null;
   }
 
   // Returns true if this tile type can contain a tileObject and doesn't already have one
@@ -52,11 +62,12 @@ class Tile {
   }
 
   // Change the tile type of this tile. Also clears any contents
-  changeType(newType, cpNum = 0) {
+  changeType(newType, cpNum = null) {
     if (!Object.values(TILE_TYPES).includes(newType)) throw `Invalid tile type: ${newType}`;
     this.clearContents();
     this.type = newType;
     this.cpNum = cpNum;
+    this.updateText();
   }
 
   addItem(item) {
@@ -104,6 +115,13 @@ class Tile {
     // render tile (This will execute type dependant display code)
     this.shape.graphics.clear().beginStroke('black').beginFill(TILE_COLORS[this.type])
     .drawRect(this.x * tileSize, this.y * tileSize, tileSize, tileSize);
+
+    //add text for cp number
+    if (this.cpNum) {
+      this.text.x = this.x * tileSize + tileSize / 2;
+      this.text.y = this.y * tileSize + tileSize / 2;
+      this.text.font = `${tileSize/1.5}px Arial`;
+    }
 
     if (this.contents) {
       // render contents on tile (This executes the content's render method)

@@ -1,0 +1,52 @@
+GAME IDEA: Tower defense game with focus on making a long maze.
+Mobs start at the start tile, path to any checkpoint tiles in order, and then to the finish tile.
+Mobs will take the shortest path to their next objective, navigating around obstacles.
+Teleports are not considered in determining the shortest path (Mobs ignore them when determining path).
+Each teleport only activates once for each mob that paths over it. subsequent visits by the same mob will not teleport it.
+Player can place walls and towers to block the path. Walls are cheap, Towers are more expensive, both limited.
+Voids block path, can't be built on. Can be removed for a huge cost, possibly only a limited number of times per map.
+Objective tiles (Start/End, Checkpoints) can't be built on.
+Teleport tiles can be built on. If entrance or exit is blocked the teleporter is disabled.
+
+Towers begin as a basic type with low damage and average range and attack speed. Tower damage can be upgraded (possibly range as well?). These upgrades carry forward when the tower is upgraded to a specialized type.
+
+Tower Types:
+  Basic turret: The base tower type. Single target, range 6, low damage, average attack speed.
+
+  Heavy turret: Identical to basic tower but with high damage. Single target, range 6, average attack speed.
+
+  Sniper tower: Very long range tower with high damage and slow attack speed. Has a minimum range that creates a dead zone close to the tower. Should be good for placing in damage zones that are not in the center of the main maze or for very spread mazes. Range 9 (192), min range 4 (-44), 148 max exposure.
+
+  Chain Lightning tower: Shoots a beam of lightning that chains from one mob to the next. Multi-target, low damage, normal attack speed, range 6. Hits up to 5 targets total. Mobs with more than normal spread distance will not conduct the chain to the mob behind them.
+
+  Multi-shot tower: Hits three targets at once. Multi-target, low damage, normal attack speed, range 6. Ideal for waves that always contain at least three targets.
+
+  Splash tower: Deals splash damage around its target. Splash, high damage, low attack speed, range 4, splash radius 2. Ideal for tightly grouped mobs and high mob count waves where splash damage can hit through walls.
+
+  Beam tower: Channels a beam at a target dealing more damage the longer it channels. Single-target, normal damage, normal attack speed, range 6? Great single target tower, shines when mazing keeps its target within range.
+
+  Melee tower: Single target, very high damage, low attack speed, and 1 range. Can only hit mobs on the 8 tiles adjacent to it. This tower should be good in situations where making a maze with good tower exposure is not feasible or when there is a high damage zone/slow zone in a tight spot. Other towers with reasonable mazes should beat this tower.
+
+  Napalm tower: A unique tower that leaves burning ground under its target for a short duration. Mobs that walk through this area take the tower's full attack damage (should only damage a mob once per shot). Pseudo multi-target, medium damage, normal attack speed, range 6. For mobs with normal speed and spread, this tower should damage its target plus the mob behind it each shot. The number of targets hit per shot increases with mob move speed and density. It should perform well against fast mobs, close mobs, and speed zones (especially combinations of those three, given adequate mob count); but shouldn't be considered otherwise.
+
+Tower range:
+  1: Melee range       6 tiles max exposure (2 sets of 3 adjacent tiles)
+  3: Very short       24 tiles max exposure
+  4: Short range      44 tiles max exposure
+  6: Standard range   90 tiles max exposure
+  8: Long range      148 tiles max exposure
+  9: Very long       192 tiles max exposure
+  (Max exposure assumes a perfect diagonal path with no obstructions)
+
+  A tile is in range of a tower if (tower.x - tile.x)^2 + (tower.y - tile.y)^2 < (range + 0.5)^2
+  This allows towers to hit tiles whose area is at least 50% within its range
+
+Walls can be sold for 100% refund, Towers refund base price but only 50% cost of upgrades.
+
+Mob pathing will utilize a breadth-first search to find the shortest path to the next objective.
+After finding path to an objective, but before finding path to next objective or taking path;
+will need to check if the path leads over any active teleports and then recalculate path
+from tp exit. Must ensure TP is active and flag inactive after pathing over it.
+
+Test range game mode:
+  A practice mode that allows the player to test different tower and mob types. Unlimited currency and tower and wall count. Player picks mob type and amount and can place objectives and teleports on map. This could also lead to a map editor mode.

@@ -7,30 +7,28 @@ import Coord from "./coord.js";
 // Mobs will need to detect when they path over a teleporter and then request a new path.
 
 class Pathfinder {
-  constructor(grid, origin, goalType, cpNum = 0) {
+  constructor(grid) {
     this.grid = grid; // 2D array of tiles
-    this.origin = origin;
-    this.findGoalCoord(goalType, cpNum);
   }
 
   // Finds and saves the coordinates to pathfind to
-  findGoalCoord(goal, cpNum) {
-    this.grid.forEach((row, x) => {
-      row.forEach((tile, y) => {
-        if (tile.type == goal && (cpNum === 0 || tile.cpNum == cpNum)) {
-          this.goalCoord = new Coord(x, y);
-          return;
+  findGoalCoord(goalType, cpNum) {
+    let grid = this.grid;
+    for (let x = 0; x < grid.length; x++) {
+      for (let y = 0; y < grid[x].length; y++) {
+        let tile = grid[x][y];
+        if (tile.type === goalType && (cpNum == null || tile.cpNum == cpNum)) {
+          return new Coord(x, y);
         }
-      });
-    });
+      }
+    }
   }
 
   // Finds the shortest path from origin to goal tile via breadth first search
   // Returns a stack representattion (array) of the path from origin to goal
   // If no path is found, returns null
-  findPath() {
-    let origin = this.origin;
-    let goal = this.goalCoord;
+  findPath(origin, goalType, cpNum = null) {
+    let goal = this.findGoalCoord(goalType, cpNum);
     const queue = new Queue(); // Tiles to visit
     const pathHist = {}; // Holds a reference to the tile preceeding any given tile in the path
 
