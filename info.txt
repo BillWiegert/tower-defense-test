@@ -1,4 +1,4 @@
-GAME IDEA: Tower defense game with focus on making a long maze.
+GAME IDEA: Tower defense game with focus on creating a long maze.
 Mobs start at the start tile, path to any checkpoint tiles in order, and then to the finish tile.
 Mobs will take the shortest path to their next objective, navigating around obstacles.
 Teleports are not considered in determining the shortest path (Mobs ignore them when determining path).
@@ -17,7 +17,7 @@ Tower Types:
 
   Sniper tower: Very long range tower with high damage and slow attack speed. Has a minimum range that creates a dead zone close to the tower. Should be good for placing in damage zones that are not in the center of the main maze or for very spread mazes. Range 9 (192), min range 4 (-44), 148 max exposure.
 
-  Chain Lightning tower: Shoots a beam of lightning that chains from one mob to the next. Multi-target, low damage, normal attack speed, range 6. Hits up to 5 targets total. Mobs with more than normal spread distance will not conduct the chain to the mob behind them.
+  Chain Lightning tower: Shoots a beam of lightning that chains from one mob to the next. Multi-target, low damage, normal attack speed, range 6. Hits up to 5 targets total. Mobs with more than normal spread distance will not conduct the chain to the mob behind them. Chain range 2.
 
   Multi-shot tower: Hits three targets at once. Multi-target, low damage, normal attack speed, range 6. Ideal for waves that always contain at least three targets.
 
@@ -40,6 +40,25 @@ Tower range:
 
   A tile is in range of a tower if (tower.x - tile.x)^2 + (tower.y - tile.y)^2 < (range + 0.5)^2
   This allows towers to hit tiles whose area is at least 50% within its range
+
+Mob Modifiers:
+  Follow distance:
+    Normal: Follow distance of 1 (1 empty tile between mobs).
+
+    Close: Follow distance of 0 (no empty tiles between mobs). Splash towers are very effective.
+
+    Spread: Follow distance of 3 (3 empty tiles between mobs). Counters splash and chain lightning towers.
+
+  Speed: (might need revisiting)
+    Normal: 200ms per tile
+
+    Fast: 150ms per tile
+
+    Slow: 250ms per tile
+
+  Special:
+
+
 
 Walls can be sold for 100% refund, Towers refund base price but only 50% cost of upgrades.
 

@@ -9,6 +9,7 @@ let tileSize;
 var tiles = new Array(GRID_WIDTH);
 let pathfinder = new Pathfinder(tiles);
 let testMob;
+let pathLength = 0;
 
 // Invokes the actual handler (fn) only after a specified delay in triggering events occurs.
 // Used as an intermediate handler.
@@ -51,6 +52,15 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   RANDOMIZE_BUTTON.addEventListener("click", newRandomMap);
   START_BUTTON.addEventListener("click", startPathing);
+
+  function incrementPathLength() {
+    pathLength++;
+    PATH_LENGTH.innerHTML = pathLength;
+  }
+
+  function resetPathLength() {
+    pathLength = 0;
+  }
 
   // Change selectedTool on click and update active button
   function handleToolbarButtonClick(button) {
@@ -121,6 +131,10 @@ document.addEventListener("DOMContentLoaded", (event) => {
     tiles[finishX][finishY].changeType(TILE_TYPES.FINISH);
 
     testMob = new Mob(STAGE, tiles, numCPs + 1, pathfinder);
+    
+    // TODO: This is awful, fix it
+    testMob.incrementPathLength = incrementPathLength;
+    testMob.resetPathLength = resetPathLength;
 
     draw();
   }

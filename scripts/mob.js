@@ -80,9 +80,10 @@ class Mob {
       // Animate shape to next tile
       tween.to({x: nextX, y: nextY}, this.speed);
 
-      // Update Mob's position
+      // Update Mob's position each tile moved
       tween.call(() => {
         this.position = nextTile;
+        this.incrementPathLength();
       });
     }
 
@@ -109,7 +110,7 @@ class Mob {
   // Deal damage to the mob
   takeDamage(amount) {
     // Calculate damage reduction from armor, prevent negative damage
-    let mitigatedDamage = this.armor > amount ? 0 : amount - this.armor;
+    let mitigatedDamage = this.armor >= amount ? 0 : amount - this.armor;
     this.health = this.health - mitigatedDamage;
 
     if(this.health <= 0) this.die(); // Die if health reduced below 0
@@ -123,6 +124,7 @@ class Mob {
 
   reachFinish() {
     this.shape.graphics.clear();
+    this.resetPathLength()
   }
 }
 
