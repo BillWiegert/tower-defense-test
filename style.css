@@ -50,7 +50,7 @@ body {
   'tower tower . .'
   'wall wall . .'
   'sell sell . .'
-	/ 25% 25% 25% 25%;
+	/ 20% 20% 30% 30%;
 }
 
 #toolbar > button.active {
@@ -69,6 +69,19 @@ body {
 
 #sell-button {
   grid-area: sell;
+}
+
+#new-seed-num {
+	width: 5em;
+	border: 1px solid rgb(118, 118, 118);
+	border-radius: 3px 0 0 3px;
+}
+
+#new-seed-btn {
+	border: 1px solid rgb(118, 118, 118);
+	border-left: none;
+	border-radius: 0 3px 3px 0;
+	margin-left: -5px;
 }
 
 .tooltip {

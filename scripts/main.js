@@ -2,6 +2,7 @@ import { Tile, TILE_TYPES } from "./tile.js";
 import Pathfinder from "./pathfinder.js";
 import Coord from "./coord.js";
 import Mob from "./mob.js";
+import mulberry32 from "./seededRand.js";
 
 const GRID_WIDTH = 36;
 const GRID_HEIGHT = 20;
@@ -28,8 +29,9 @@ function debounce(delay, fn) {
   }
 }
 
-function randInt(n) {
-  return Math.floor(Math.random() * n);
+// Generates a 'random' integer from 0 to n - 1 using the given random number generating function.
+function randInt(n, func = Math.random) {
+  return Math.floor(func() * n);
 }
 
 document.addEventListener("DOMContentLoaded", (event) => {
@@ -39,6 +41,9 @@ document.addEventListener("DOMContentLoaded", (event) => {
   const RANDOMIZE_BUTTON = document.querySelector("#randomize");
   const START_BUTTON = document.querySelector("#start-btn");
   const PATH_LENGTH = document.querySelector("#path-length");
+  const MAP_SEED = document.querySelector("#map-seed");
+  const NEW_SEED_NUM = document.querySelector("#new-seed-num");
+  const NEW_SEED_BUTTON = document.querySelector("#new-seed-btn");
 
   // User changable options to change what actions are performed on click
   let selectedOptions = {
@@ -50,8 +55,17 @@ document.addEventListener("DOMContentLoaded", (event) => {
     handleToolbarButtonClick(button);
   }));
 
-  RANDOMIZE_BUTTON.addEventListener("click", newRandomMap);
+  document.addEventListener("keydown", function(e) {
+    if (e.keyCode === 32) {
+      START_BUTTON.click();
+      e.preventDefault();
+    }
+  });
+
+  RANDOMIZE_BUTTON.addEventListener("click", handleRandomSeedClick);
   START_BUTTON.addEventListener("click", startPathing);
+  NEW_SEED_NUM.addEventListener("keydown", handleNewSeedNumKeydown);
+  NEW_SEED_BUTTON.addEventListener("click", handleNewSeedClick);
 
   function incrementPathLength() {
     pathLength++;
@@ -60,6 +74,22 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   function resetPathLength() {
     pathLength = 0;
+  }
+
+  function updateCurrentSeed(seed) {
+    MAP_SEED.innerHTML = seed;
+  }
+
+  function handleRandomSeedClick() {
+    newRandomMap();
+  }
+
+  function handleNewSeedNumKeydown(e) {
+    if (e.keyCode === 13) NEW_SEED_BUTTON.click();
+  }
+
+  function handleNewSeedClick() {
+    newRandomMap(NEW_SEED_NUM.value);
   }
 
   // Change selectedTool on click and update active button
@@ -82,7 +112,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     }
 
     updateCanvasSize();
-    generateRandomGrid(randInt(4));
+    generateRandomGrid();
   }
 
   initialize();
@@ -94,13 +124,22 @@ document.addEventListener("DOMContentLoaded", (event) => {
     testMob.startPathing();
   }
 
-  function newRandomMap() {
+  function newRandomMap(seed) {
     testMob.die()
     resetPathLength()
-    generateRandomGrid(randInt(4));
+    generateRandomGrid(seed);
   }
 
-  function generateRandomGrid(numCPs = 2) {
+  function generateRandomGrid(seed = randInt(99999)) {
+    updateCurrentSeed(seed);
+
+    // Create seeded pseudo-random number generator
+    let seededRand = mulberry32(seed);
+
+    // 0 to 3 checkpoints
+    let numCPs = randInt(4, seededRand);
+
+    // Reset all tiles to blanks
     for (let i = 0; i < GRID_WIDTH; i++) {
       for (let j = 0; j < GRID_HEIGHT; j++) {
         tiles[i][j].changeType(TILE_TYPES.BLANK);
@@ -109,21 +148,21 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
     // Add random void tiles
     for (let i = 0; i < GRID_WIDTH * 2; i++) {
-      let x = Math.floor(Math.random() * GRID_WIDTH);
-      let y = Math.floor(Math.random() * GRID_HEIGHT);
+      let x = randInt(GRID_WIDTH, seededRand);
+      let y = randInt(GRID_HEIGHT, seededRand);
 
       tiles[x][y].changeType(TILE_TYPES.VOID);
     }
 
     // Add start, finish, and cps
-    let startX = Math.floor(Math.random() * (GRID_WIDTH/2));
-    let startY = Math.floor(Math.random() * (GRID_HEIGHT/2));
-    let finishX = Math.floor(Math.random() * (GRID_WIDTH/2) + GRID_WIDTH/2);
-    let finishY = Math.floor(Math.random() * (GRID_HEIGHT/2) + GRID_HEIGHT/2);
+    let startX = randInt(GRID_WIDTH/2, seededRand);
+    let startY = randInt(GRID_HEIGHT/2, seededRand);
+    let finishX = randInt(GRID_WIDTH/2, seededRand) + GRID_WIDTH/2;
+    let finishY = randInt(GRID_HEIGHT/2, seededRand) + GRID_HEIGHT/2;
 
     for (let i = numCPs; i > 0; i--) {
-      let cpX = Math.floor(Math.random() * (GRID_WIDTH));
-      let cpY = Math.floor(Math.random() * (GRID_HEIGHT));
+      let cpX = randInt(GRID_WIDTH, seededRand);
+      let cpY = randInt(GRID_HEIGHT, seededRand);
 
       tiles[cpX][cpY].changeType(TILE_TYPES.CHECKPOINT, i);
     }
@@ -139,12 +178,6 @@ document.addEventListener("DOMContentLoaded", (event) => {
     testMob.resetPathLength = resetPathLength;
 
     draw();
-  }
-
-  function generateRandomCoord(max, min = null) {
-    let coord = new Coord();
-    let cp1X = Math.floor(Math.random() * (GRID_WIDTH));
-    let cp1Y = Math.floor(Math.random() * (GRID_HEIGHT));
   }
 
   // Updates the size of the canvas after the window is resized

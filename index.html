@@ -21,10 +21,14 @@
         <button type="button" value="tower" id="tower-button" class="build-type-btn active">Tower</button>
         <button type="button" value="wall" id="wall-button" class="build-type-btn">Wall</button>
         <button type="button" value="sell" id="sell-button" class="build-type-btn">Sell</button>
-        <button type="button" id="randomize">Randomize Map</button>
+        <button type="button" id="randomize">Random Seed</button>
         <button type="button" id="start-btn" name="start-btn">Start</button>
         <div>Seed: <span id="map-seed">0</span></div>
         <div>Path Length: <span id="path-length">0</span></div>
+        <div>
+          <label>New Seed: <input type="number" min="0" max="99999" id="new-seed-num" placeholder="12345"></label>
+          <button type="button" id="new-seed-btn">OK</button>
+        </div>
       </div>
       <div class="tooltip">
         <p class="tooltip-label">Damage:</p><p class="tooltip-value">10</p>
