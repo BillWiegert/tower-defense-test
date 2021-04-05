@@ -67,7 +67,7 @@ class Mob {
 
     path.pop(); // Toss first entry, should be current position which is unneeded
     let goalPos = path[0];
-    let tween = createjs.Tween.get(this.shape, {override: true});
+    this.tween = createjs.Tween.get(this.shape, {override: true});
 
     // Iterate through path array and animate movement to each tile
     while(path.length > 0) {
@@ -78,17 +78,17 @@ class Mob {
       let nextY = nextTile.y * this.tileSize;
 
       // Animate shape to next tile
-      tween.to({x: nextX, y: nextY}, this.speed);
+      this.tween.to({x: nextX, y: nextY}, this.speed);
 
       // Update Mob's position each tile moved
-      tween.call(() => {
+      this.tween.call(() => {
         this.position = nextTile;
         this.incrementPathLength();
       });
     }
 
     // Callback function to be called after mob reaches goal tile
-    tween.call(() => {
+    this.tween.call(() => {
       this.currentGoal++; // Update current goal number
       this.currentGoal <= this.numGoals ? this.startPathing() : this.reachFinish();
     });
@@ -113,18 +113,19 @@ class Mob {
     let mitigatedDamage = this.armor >= amount ? 0 : amount - this.armor;
     this.health = this.health - mitigatedDamage;
 
-    if(this.health <= 0) this.die(); // Die if health reduced below 0
+    if (this.health <= 0) this.die(); // Die if health reduced below 0
   }
 
   // Handle mob reaching 0 health
   // Either remove from game or restore to full health and grant score
   die(){
     this.shape.graphics.clear();
+    createjs.Tween.removeTweens(this.shape);
   }
 
   reachFinish() {
     this.shape.graphics.clear();
-    this.resetPathLength()
+    createjs.Tween.removeTweens(this.shape);
   }
 }
 

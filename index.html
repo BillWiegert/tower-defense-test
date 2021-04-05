@@ -18,18 +18,19 @@
     <div class="interactable-area">
       <canvas id="game-space" width="800" height="600"></canvas>
       <div id="toolbar">
-        <button type="button" value="tower" id="tower-button" class="active">Tower</button>
-        <button type="button" value="wall" id="wall-button">Wall</button>
-        <button type="button" value="sell" id="sell-button">Sell</button>
+        <button type="button" value="tower" id="tower-button" class="build-type-btn active">Tower</button>
+        <button type="button" value="wall" id="wall-button" class="build-type-btn">Wall</button>
+        <button type="button" value="sell" id="sell-button" class="build-type-btn">Sell</button>
+        <button type="button" id="randomize">Randomize Map</button>
+        <button type="button" id="start-btn" name="start-btn">Start</button>
+        <div>Seed: <span id="map-seed">0</span></div>
+        <div>Path Length: <span id="path-length">0</span></div>
       </div>
-      <button type="button" id="randomize">Randomize Map</button>
-      <button type="button" id="start-btn" name="start-btn">Start</button>
-      <div id="tooltip">
+      <div class="tooltip">
         <p class="tooltip-label">Damage:</p><p class="tooltip-value">10</p>
         <p class="tooltip-label">Speed:</p><p class="tooltip-value">1</p>
         <p class="tooltip-label">Range:</p><p class="tooltip-value">7</p>
       </div>
     </div>
-    <div>Path Length: <span id="path-length">0</span></div>
   </body>
 </html>

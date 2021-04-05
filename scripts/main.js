@@ -35,7 +35,7 @@ function randInt(n) {
 document.addEventListener("DOMContentLoaded", (event) => {
   const CANVAS = document.querySelector("#game-space");
   const STAGE = new createjs.Stage("game-space");
-  const TOOLBAR_BUTTONS = document.querySelectorAll("#toolbar > button");
+  const TOOLBAR_BUTTONS = document.querySelectorAll(".build-type-btn");
   const RANDOMIZE_BUTTON = document.querySelector("#randomize");
   const START_BUTTON = document.querySelector("#start-btn");
   const PATH_LENGTH = document.querySelector("#path-length");
@@ -64,7 +64,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
 
   // Change selectedTool on click and update active button
   function handleToolbarButtonClick(button) {
-    document.querySelector("#toolbar > button.active").classList.remove("active");
+    document.querySelector("#toolbar > .active").classList.remove("active");
     button.classList.add("active");
     selectedOptions.selectedTool = button.value;
   }
@@ -89,12 +89,14 @@ document.addEventListener("DOMContentLoaded", (event) => {
   createjs.Ticker.addEventListener("tick", STAGE);
 
   function startPathing() {
+    resetPathLength();
     testMob.spawn(tileSize)
     testMob.startPathing();
   }
 
   function newRandomMap() {
     testMob.die()
+    resetPathLength()
     generateRandomGrid(randInt(4));
   }
 
@@ -131,7 +133,7 @@ document.addEventListener("DOMContentLoaded", (event) => {
     tiles[finishX][finishY].changeType(TILE_TYPES.FINISH);
 
     testMob = new Mob(STAGE, tiles, numCPs + 1, pathfinder);
-    
+
     // TODO: This is awful, fix it
     testMob.incrementPathLength = incrementPathLength;
     testMob.resetPathLength = resetPathLength;
